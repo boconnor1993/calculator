@@ -37,7 +37,7 @@ body {
     flex-direction: column;
 }
 
-.btn-row-one {
+.btn-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
