@@ -11,10 +11,9 @@ let operatorPresent = false;
 const updateDisplay = (value) => {
     // Display options for number inputs
     if (Number.isInteger(+value)) {
-        if (display.textContent.length >= 8) {
-            display.textContent;
+        if (display.textContent.length < 8) {
+            display.textContent += value;
         }
-        else {display.textContent += value}
         operatorPresent = false;
     }
     
