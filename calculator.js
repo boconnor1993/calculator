@@ -1,56 +1,69 @@
 // Get the display element
 const display = document.getElementById('display');
 
-// Variable to store the current calculation
+// Global variable to store the current display string and full calculation string
+display.textContent = '';
 let calculation = '';
-
-// Get the 'AC' button
-const clearButton = document.getElementById('clear');
-
-// Add event listener to 'AC' button
-clearButton.addEventListener('click', () => {
-  updateDisplay('AC');
-});
+let decimalPresent = false;
+let operatorPresent = false;
 
 // Function to update the display
-let isOperatorClicked = false;
-
 const updateDisplay = (value) => {
-    if (value === 'AC') {
-        // Clear the display and calculation
-        display.textContent = '';
-        calculation = '';
-    } else if (value === '=') {
-        // Check if there's a valid calculation to perform
-        if (calculation) {
-            calculate();
-            return; // Exit the function to prevent further execution
+    // Display options for number inputs
+    if (Number.isInteger(+value)) {
+        if (display.textContent.length >= 8) {
+            display.textContent;
         }
-    } else if (['+', '-', '*', '/'].includes(value)) {
-        // Check if the calculation string is empty or already has an operator
-        if (calculation === '' || /[\+\-\*\/]$/.test(calculation)) {
-            // Replace the last operator in the calculation string
-            calculation = calculation.slice(0, -1) + value;
-        } else {
-            // Append the operator to the calculation string
-            calculation += value;
+        else {display.textContent += value}
+        operatorPresent = false;
+    }
+    
+    // Display options for operator inputs
+    if (['+', '-', '/', '*'].includes(value)) {
+        if (operatorPresent === false) {
+            const displayToCalculation = display.textContent += value;
+            calculation += displayToCalculation;
+            clearDisplay(value);
+            operatorPresent = true;
         }
-        isOperatorClicked = true;
-    } else {
-        // Append the number to the calculation string
-        calculation += value;
-        // We only display the number buttons pressed, but clear the display if operator was clicked
-        if (isOperatorClicked) {
-            display.textContent = value;
-            isOperatorClicked = false;
-        } else {
+    }
+
+    // Display options for decimal input
+    if (value === '.') {
+        if (decimalPresent === false && display.textContent.length > 0) {
             display.textContent += value;
+            decimalPresent = true;
+        }
+
+        else {
+            display.textContent;
+        }
+    }
+
+    // Display options for equals sign and perform calculation
+    if (value === '=') {
+        if (operatorPresent === false) {
+            calculation += display.textContent;
+            display.textContent = calculate();
         }
     }
 };
 
-  
-  const calculate = () => {
+// Function to clear display back to blank 
+const clearDisplay = (value) => {
+    if (value === 'AC') {
+        display.textContent = '';
+        calculation = '';
+        decimalPresent = false;
+    }
+    else if (['+', '-', '/', '*'].includes(value)) {
+        display.textContent = '';
+        decimalPresent = false;
+    };
+};
+
+// Function to make calculation 
+const calculate = () => {
     // Split the calculation string into operands and operators
     const operands = calculation.split(/\+|\-|\*|\//g);
     const operators = calculation.match(/\+|\-|\*|\//g);
@@ -80,42 +93,54 @@ const updateDisplay = (value) => {
   
     // Check if result is an integer, if so, don't display decimal places
     if (Number.isInteger(result)) {
-        display.textContent = result.toString(); // If result is an integer
+        result = result.toString(); // If result is an integer
     } else {
-        display.textContent = result.toFixed(2); // If result is not an integer
+        result = result.toFixed(2); // If result is not an integer
     }
   
     calculation = '';
+    return result;
 };
 
 // Function to set up event listeners
 const setupEventListeners = () => {
-  // Get all number buttons
-  const numberButtons = document.querySelectorAll('.btn-num');
-  // Get all operator buttons
-  const operatorButtons = document.querySelectorAll('.btn-operator');
+    // Get all number buttons and operator buttons using query selector
+    const numBtns = document.querySelectorAll('.btn-num');
+    const operatorBtns = document.querySelectorAll('.btn-operator');
+    const equalBtn = document.getElementById('btn-equal');
+    const clearBtn = document.getElementById('clear');
+    const decimalBtn = document.getElementById('btn-decimal');
 
-  // Add event listeners to number buttons
-  numberButtons.forEach((button) => {
-    button.addEventListener('click', (event) => {
-      const { value } = event.target;
-      updateDisplay(value);
+    // Add event listeners to number buttons
+    numBtns.forEach((button) => {
+        button.addEventListener('click', (event) => {
+          const { value } = event.target;
+          updateDisplay(value);
+        });
+      });
+
+    // Add event listeners to operator buttons
+    operatorBtns.forEach((button) => {
+        button.addEventListener('click', (event) => {
+            const { value } = event.target;
+            updateDisplay(value);
+        });
     });
-  });
 
-  // Add event listeners to operator buttons
-  operatorButtons.forEach((button) => {
-    button.addEventListener('click', (event) => {
-      const { value } = event.target;
-      updateDisplay(value);
+    // Add event listener to equal button
+    equalBtn.addEventListener('click', () => {
+        updateDisplay('=');
+    })
+
+    // Add event listener to 'AC' button
+    clearBtn.addEventListener('click', () => {
+        clearDisplay('AC');
     });
-  });
 
-   // Add event listener to equal button
-   const equalButton = document.getElementById('btn-equal');
-   equalButton.addEventListener('click', () => {
-     updateDisplay('=');
-   });
+    // Add event listener to decimal button
+    decimalBtn.addEventListener('click', () => {
+        updateDisplay('.')
+    })
 };
 
 // Set up event listeners
